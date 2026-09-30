@@ -1,5 +1,5 @@
 using Mango.Services.CouponAPI.Data;
-using Microsoft.AspNetCore.Http;
+using Mango.Services.CouponAPI.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,28 +10,80 @@ namespace Mango.Services.CouponAPI.Controllers
     public class CouponAPIController : ControllerBase
     {
         private readonly AppDbContext _db;
+        private ResponseDto _response;
 
         public CouponAPIController(AppDbContext db)
         {
             _db = db;
+            _response = new ResponseDto();
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ResponseDto> GetAll()
         {
-            var coupons = await _db.Coupons.ToListAsync();
-            return Ok(coupons);
+            try
+            {
+                var coupons = await _db.Coupons.ToListAsync();
+                _response.Result = coupons;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ResponseDto> GetById(int id)
         {
-            var coupon = await _db.Coupons.FindAsync(id);
-            if (coupon == null)
+            try
             {
-                return NotFound();
+                var coupon = await _db.Coupons.FirstOrDefaultAsync(u => u.CouponId == id);
+                if (coupon == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.Message = "Coupon not found";
+                }
+                else
+                {
+                    _response.Result = coupon;
+                }
             }
-            return Ok(coupon);
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
+        }
+
+        [HttpGet("GetByCode/{code}")]
+        public async Task<ResponseDto> GetByCode(string code)
+        {
+            try
+            {
+                var coupon = await _db.Coupons.FirstOrDefaultAsync(u => u.CouponCode.ToLower() == code.ToLower());
+                if (coupon == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.Message = "Coupon not found";
+                }
+                else
+                {
+                    _response.Result = coupon;
+                }
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
         }
     }
 }
+
