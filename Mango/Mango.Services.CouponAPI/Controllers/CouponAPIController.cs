@@ -89,6 +89,72 @@ namespace Mango.Services.CouponAPI.Controllers
 
             return _response;
         }
+
+        [HttpPost]
+        public async Task<ResponseDto> Post([FromBody] CouponDto couponDto)
+        {
+            try
+            {
+                Coupon coupon = _mapper.Map<Coupon>(couponDto);
+                _db.Coupons.Add(coupon);
+                await _db.SaveChangesAsync();
+
+                _response.Result = _mapper.Map<CouponDto>(coupon);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
+        }
+
+        [HttpPut]
+        public async Task<ResponseDto> Put([FromBody] CouponDto couponDto)
+        {
+            try
+            {
+                Coupon coupon = _mapper.Map<Coupon>(couponDto);
+                _db.Coupons.Update(coupon);
+                await _db.SaveChangesAsync();
+
+                _response.Result = _mapper.Map<CouponDto>(coupon);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ResponseDto> Delete(int id)
+        {
+            try
+            {
+                Coupon? coupon = await _db.Coupons.FirstOrDefaultAsync(u => u.CouponId == id);
+                if (coupon == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.Message = "Coupon not found";
+                }
+                else
+                {
+                    _db.Coupons.Remove(coupon);
+                    await _db.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
+        }
     }
 }
 
