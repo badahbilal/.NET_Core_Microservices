@@ -1,4 +1,4 @@
-﻿using Mango.Web.Models;
+using Mango.Web.Models;
 using Mango.Web.Service.IService;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -25,6 +25,11 @@ namespace Mango.Web.Controllers
             }
 
             return View(list);
+        }
+
+        public async Task<IActionResult> CouponCreate()
+        {
+            return View();
         }
     }
 }
