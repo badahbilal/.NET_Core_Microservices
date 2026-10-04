@@ -10,7 +10,7 @@ namespace Mango.Services.AuthAPI.Service
     {
         private readonly AppAuthDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<Ident ityRole> _roleManager;
 
         public AuthService(AppAuthDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
@@ -19,7 +19,7 @@ namespace Mango.Services.AuthAPI.Service
             _roleManager = roleManager;
         }
 
-        public async Task<string> Register(RegistrationRequestDto registrationRequestDto)
+        public async Task<UserDto> Register(RegistrationRequestDto registrationRequestDto)
         {
             ApplicationUser user = new()
             {
@@ -39,23 +39,21 @@ namespace Mango.Services.AuthAPI.Service
 
                     UserDto userDto = new()
                     {
-                        Email = userToReturn.Email,
+                        Email = userToReturn.Email ?? "",
                         ID = userToReturn.Id,
                         Name = userToReturn.Name,
-                        PhoneNumber = userToReturn.PhoneNumber
+                        PhoneNumber = userToReturn.PhoneNumber ?? ""
                     };
 
-                    return "";
-                }
-                else
-                {
-                    return result.Errors.FirstOrDefault()?.Description ?? "Error encountered";
+                    return userDto;
                 }
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                return new UserDto(); // Return a default or error state
             }
+
+            return new UserDto(); // Return a default
         }
 
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
