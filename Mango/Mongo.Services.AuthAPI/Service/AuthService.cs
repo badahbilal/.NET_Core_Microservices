@@ -11,12 +11,14 @@ namespace Mango.Services.AuthAPI.Service
         private readonly AppAuthDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-        public AuthService(AppAuthDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AuthService(AppAuthDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IJwtTokenGenerator jwtTokenGenerator)
         {
             _db = db;
             _userManager = userManager;
             _roleManager = roleManager;
+            _jwtTokenGenerator = jwtTokenGenerator;
         }
 
         public async Task<string> Register(RegistrationRequestDto registrationRequestDto)
@@ -77,11 +79,12 @@ namespace Mango.Services.AuthAPI.Service
                 PhoneNumber = user.PhoneNumber ?? ""
             };
 
-            // TODO: Replace empty Token with generated JWT
+            var token = _jwtTokenGenerator.GenerateToken(user);
+
             return new LoginResponseDto()
             {
                 User = userDto,
-                Token = ""
+                Token = token
             };
         }
     }
