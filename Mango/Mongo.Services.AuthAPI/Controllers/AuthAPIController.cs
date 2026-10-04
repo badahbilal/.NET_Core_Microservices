@@ -1,17 +1,34 @@
-﻿using Microsoft.AspNetCore.Http;
+using Mango.Services.AuthAPI.Models.Dto;
+using Mango.Services.AuthAPI.Service.IService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mongo.Services.AuthAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthAPIController : ControllerBase
     {
-        [HttpPost("register")]
-        public async Task<IActionResult> Register()
+        private readonly IAuthService _authService;
+        protected ResponseDto _response;
+
+        public AuthAPIController(IAuthService authService)
         {
-            // Implementation for user registration
-            return Ok();
+            _authService = authService;
+            _response = new();
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegistrationRequestDto model)
+        {
+            var errorMessage = await _authService.Register(model);
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                _response.IsSuccess = false;
+                _response.Message = errorMessage;
+                return BadRequest(_response);
+            }
+            return Ok(_response);
         }
 
         [HttpPost("login")]
@@ -20,6 +37,5 @@ namespace Mongo.Services.AuthAPI.Controllers
             // Implementation for user login
             return Ok();
         }
-
     }
 }
