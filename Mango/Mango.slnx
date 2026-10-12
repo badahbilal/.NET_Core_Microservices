@@ -6,6 +6,7 @@
   <Folder Name="/Integration/" />
   <Folder Name="/Services/">
     <Project Path="Mango.Services.CouponAPI/Mango.Services.CouponAPI.csproj" Id="7928d814-a163-4478-9db0-7b75dab73953" />
+    <Project Path="Mango.Services.ProductAPI/Mango.Services.ProductAPI.csproj" Id="5c47f631-f925-4c6e-8260-7052a32c66c3" />
     <Project Path="Mongo.Services.AuthAPI/Mongo.Services.AuthAPI.csproj" Id="0e07cede-bbb3-448f-804f-6a45c6f339e7" />
   </Folder>
 </Solution>
