@@ -51,6 +51,15 @@ public class AppDbContext : DbContext
                 Description = "Quisque vel lacus ac magna, vehicula sagittis ut non lacus.<br/> Vestibulum arcu turpis, maximus malesuada neque. Phasellus commodo cursus pretium.",
                 ImageUrl = "https://placehold.co/600x400",
                 CategoryName = "Entree"
+            },
+            new Product
+            {
+                ProductId = 5,
+                Name = "Mango Pie",
+                Price = 13.99,
+                Description = "Quisque vel lacus ac magna, vehicula sagittis ut non lacus.<br/> Vestibulum arcu turpis, maximus malesuada neque. Phasellus commodo cursus pretium.",
+                ImageUrl = "https://placehold.co/604x404",
+                CategoryName = "Dessert"
             }
         );
     }

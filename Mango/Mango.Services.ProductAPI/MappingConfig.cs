@@ -8,8 +8,6 @@ public class MappingConfig : Profile
 {
     public MappingConfig()
     {
-        CreateMap<ProductDto, Product>();
-        CreateMap<Product, ProductDto>();
+        CreateMap<Product, ProductDto>().ReverseMap();
     }
 }
-

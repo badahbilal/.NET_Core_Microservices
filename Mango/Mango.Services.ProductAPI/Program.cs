@@ -1,3 +1,4 @@
+using AutoMapper;
 using Mango.Services.ProductAPI;
 using Mango.Services.ProductAPI.Data;
 using Mango.Services.ProductAPI.Extensions;
@@ -54,19 +55,17 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-ApplyMigrations();
+
+ApplyMigration(app);
+
 app.Run();
 
-void ApplyMigrations()
+static void ApplyMigration(WebApplication app)
 {
-    using (var scope = app.Services.CreateScope())
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    if (db.Database.GetPendingMigrations().Any())
     {
-        var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        if (_db.Database.GetPendingMigrations().Any())
-        {
-            _db.Database.Migrate();
-        }
+        db.Database.Migrate();
     }
 }
-
