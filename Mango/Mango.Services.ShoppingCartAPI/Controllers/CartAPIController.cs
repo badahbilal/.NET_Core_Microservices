@@ -22,6 +22,41 @@ public class CartAPIController : ControllerBase
         _response = new ResponseDto();
     }
 
+    [HttpGet("GetCart/{userId}")]
+    public async Task<ResponseDto> GetCart(string userId)
+    {
+        try
+        {
+            CartDto cart = new()
+            {
+                CartHeader = _mapper.Map<CartHeaderDto>(await _db.CartHeaders.FirstAsync(u => u.UserId == userId))
+            };
+
+            cart.CartDetails = _mapper.Map<IEnumerable<CartDetailsDto>>(
+                await _db.CartDetails.Where(u => u.CartHeaderId == cart.CartHeader.CartHeaderId).ToListAsync());
+
+            // TODO: Fetch product details from ProductAPI via an IProductService HTTP client
+            // to populate item.Product and calculate the cart total: cart.CartHeader.CartTotal += (item.Count * item.Product.Price).
+            foreach (var item in cart.CartDetails)
+            {
+                //if (item.Product != null)
+                //{
+                    cart.CartHeader.CartTotal += (item.Count * item.Product.Price);
+                //}
+            }
+
+            _response.Result = cart;
+            _response.IsSuccess = true;
+        }
+        catch (Exception ex)
+        {
+            _response.IsSuccess = false;
+            _response.Message = ex.Message.ToString();
+        }
+
+        return _response;
+    }
+
     [HttpPost("CartUpsert")]
     public async Task<ResponseDto> CartUpsert([FromBody] CartDto cartDto)
     {
