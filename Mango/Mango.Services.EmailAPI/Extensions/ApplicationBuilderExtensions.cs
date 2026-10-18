@@ -1,18 +1,21 @@
 using Mango.Services.EmailAPI.Messaging;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-namespace Mango.Services.EmailAPI.Extension;
+namespace Mango.Services.EmailAPI.Extensions;
 
-public static class ApplicationBuilderExtension
+public static class ApplicationBuilderExtensions
 {
     private static IAzureServiceBusConsumer? ServiceBusConsumer { get; set; }
 
     public static IApplicationBuilder UseAzureServiceBusConsumer(this IApplicationBuilder app)
     {
         ServiceBusConsumer = app.ApplicationServices.GetService<IAzureServiceBusConsumer>();
-        var hostApplicationLifetime = app.ApplicationServices.GetService<IHostApplicationLifetime>();
+        var hostLifetime = app.ApplicationServices.GetService<IHostApplicationLifetime>();
 
-        hostApplicationLifetime?.ApplicationStarted.Register(OnStart);
-        hostApplicationLifetime?.ApplicationStopping.Register(OnStop);
+        hostLifetime?.ApplicationStarted.Register(OnStart);
+        hostLifetime?.ApplicationStopping.Register(OnStop);
 
         return app;
     }
