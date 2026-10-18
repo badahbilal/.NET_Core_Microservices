@@ -26,7 +26,7 @@
                                 </div>
                             </div>
                             <div class="row mx-0">
-                                <input asp-for="Count" class="form-control" />
+                                <input asp-for="Count" class="form-control" type="number" min="1" max="100" />
                                 <span asp-validation-for="Count" class="text-danger"></span>
                             </div>
                         </div>
@@ -38,7 +38,7 @@
                     <a asp-action="Index" class="btn btn-outline-warning btn-square form-control btn-lg" style="height:50px;">Back to List</a>
                 </div>
                 <div class="col-12 col-md-6">
-                    <button type="submit" class="btn btn-primary form-control btn-lg" style="height:50px;">Add to Cart</button>
+                    <button type="submit" class="btn btn-success form-control btn-lg" style="height:50px;">Add to Cart</button>
                 </div>
             </div>
         </div>

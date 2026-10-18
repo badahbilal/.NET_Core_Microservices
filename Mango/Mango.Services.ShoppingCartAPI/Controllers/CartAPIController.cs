@@ -33,13 +33,21 @@ public class CartAPIController : ControllerBase
     {
         try
         {
+            var cartHeaderFromDb = await _db.CartHeaders.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (cartHeaderFromDb == null)
+            {
+                _response.Result = new CartDto();
+                _response.IsSuccess = true;
+                return _response;
+            }
+
             CartDto cart = new()
             {
-                CartHeader = _mapper.Map<CartHeaderDto>(await _db.CartHeaders.FirstAsync(u => u.UserId == userId))
+                CartHeader = _mapper.Map<CartHeaderDto>(cartHeaderFromDb)
             };
 
             cart.CartDetails = _mapper.Map<IEnumerable<CartDetailsDto>>(
-                await _db.CartDetails.Where(u => u.CartHeaderId == cart.CartHeader.CartHeaderId).ToListAsync());
+                _db.CartDetails.Where(u => u.CartHeaderId == cart.CartHeader.CartHeaderId));
 
             IEnumerable<ProductDto> productDtos = await _productService.GetProducts();
 
