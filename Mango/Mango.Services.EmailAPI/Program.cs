@@ -1,6 +1,10 @@
 using Mango.Services.EmailAPI;
 using Mango.Services.EmailAPI.Data;
+using Mango.Services.EmailAPI.Extension;
 using Mango.Services.EmailAPI.Extensions;
+using Mango.Services.EmailAPI.Messaging;
+using Mango.Services.EmailAPI.Services;
+using Mango.Services.EmailAPI.Services.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
@@ -15,6 +19,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+var optionBuilder = new DbContextOptionsBuilder<AppDbContext>();
+optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.AddSingleton<IEmailService>(new EmailService(optionBuilder.Options));
+
+builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
 builder.Services.AddAutoMapper(cfg => { }, typeof(MappingConfig));
 
@@ -60,6 +70,9 @@ app.UseAuthorization();
 app.MapControllers();
 
 ApplyMigration();
+
+app.UseAzureServiceBusConsumer();
+
 app.Run();
 
 void ApplyMigration()
