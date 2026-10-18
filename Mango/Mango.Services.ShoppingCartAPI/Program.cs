@@ -1,4 +1,4 @@
-using AutoMapper;
+using Mango.MessageBus;
 using Mango.Services.ShoppingCartAPI;
 using Mango.Services.ShoppingCartAPI.Data;
 using Mango.Services.ShoppingCartAPI.Extensions;
@@ -11,6 +11,9 @@ using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load untracked local settings for secrets (e.g. Service Bus Connection String)
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(option =>
 {
@@ -18,6 +21,8 @@ builder.Services.AddDbContext<AppDbContext>(option =>
 });
 
 builder.Services.AddAutoMapper(cfg => { }, typeof(MappingConfig));
+
+builder.Services.AddScoped<IMessageBus, MessageBus>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<BackendApiAuthenticationHttpClientHandler>();

@@ -6,6 +6,12 @@
 # dotenv files
 .env
 
+# Local / Sensitive configuration files (Never commit secrets to GitHub)
+appsettings.Local.json
+appsettings.*.Local.json
+*.local.json
+secrets.json
+
 # User-specific files
 *.rsuser
 *.suo
