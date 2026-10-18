@@ -1,6 +1,6 @@
 @model CartDto
 
-@if (Model.CartHeader != null && Model.CartDetails != null && Model.CartDetails.Any())
+@if (Model.CartHeader != null && Model.CartDetails != null && Model.CartDetails.Count() > 0)
 {
     <form method="post">
         <br />
@@ -52,7 +52,6 @@
                     <hr />
                 }
 
-                <!-- Cart summary, coupon, and total section placeholder -->
                 <div class="row">
                     <div class="col-6">
                         <span>Coupon:</span>
@@ -91,8 +90,7 @@
 else
 {
     <div class="container text-center pt-5">
-        <h4>Your shopping cart is currently empty!</h4>
-        <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">Start Shopping</a>
+        <p class="lead">Please add items to cart.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">Browse Products</a>
     </div>
 }
-
