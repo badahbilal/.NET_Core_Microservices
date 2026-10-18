@@ -3,7 +3,9 @@
     <Project Path="Mango.Web/Mango.Web.csproj" Id="be102e78-de24-4cde-83ae-5ebaa79893f2" />
   </Folder>
   <Folder Name="/GateWay/" />
-  <Folder Name="/Integration/" />
+  <Folder Name="/Integration/">
+    <Project Path="Mango.MessageBus/Mango.MessageBus.csproj" />
+  </Folder>
   <Folder Name="/Services/">
     <Project Path="Mango.Services.CouponAPI/Mango.Services.CouponAPI.csproj" Id="7928d814-a163-4478-9db0-7b75dab73953" />
     <Project Path="Mango.Services.ProductAPI/Mango.Services.ProductAPI.csproj" Id="5c47f631-f925-4c6e-8260-7052a32c66c3" />
