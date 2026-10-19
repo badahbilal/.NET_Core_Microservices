@@ -5,6 +5,7 @@ using Mango.Services.EmailAPI.Messaging;
 using Mango.Services.EmailAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,9 +19,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+//117. Asynchronous Communication in Action
 var dbOptions = new DbContextOptionsBuilder<AppDbContext>();
 dbOptions.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-builder.Services.AddSingleton(new EmailService(dbOptions.Options));
+builder.Services.AddSingleton<IEmailService>(sp =>
+    new EmailService(dbOptions.Options));
 
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 

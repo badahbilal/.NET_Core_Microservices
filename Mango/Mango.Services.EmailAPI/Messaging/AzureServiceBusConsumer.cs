@@ -11,12 +11,14 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
     private readonly string _serviceBusConnectionString;
     private readonly string _emailCartQueue;
     private readonly IConfiguration _configuration;
-    private readonly EmailService _emailService;
+    //117. Asynchronous Communication in Action
+    private readonly IEmailService _emailService;
     private readonly ServiceBusProcessor _emailCartProcessor;
 
-    public AzureServiceBusConsumer(IConfiguration configuration, EmailService emailService)
+    public AzureServiceBusConsumer(IConfiguration configuration, IEmailService emailService)
     {
         _configuration = configuration;
+        //117. Asynchronous Communication in Action
         _emailService = emailService;
 
         _serviceBusConnectionString = _configuration.GetValue<string>("ServiceBusConnectionString")
@@ -43,15 +45,12 @@ public class AzureServiceBusConsumer : IAzureServiceBusConsumer
     private async Task OnEmailCartRequestReceived(ProcessMessageEventArgs args)
     {
         var message = args.Message;
-        var body = Encoding.UTF8.GetString(message.Body);
+        var body = Encoding.UTF8.GetString(message.Body.ToArray());
 
-        CartDto? objMessage = JsonConvert.DeserializeObject<CartDto>(body);
+        CartDto objMessage = JsonConvert.DeserializeObject<CartDto>(body)!;
         try
         {
-            if (objMessage != null)
-            {
-                await _emailService.EmailCartAndLog(objMessage);
-            }
+            await _emailService.EmailCartAndLog(objMessage);
             await args.CompleteMessageAsync(args.Message);
         }
         catch (Exception)
