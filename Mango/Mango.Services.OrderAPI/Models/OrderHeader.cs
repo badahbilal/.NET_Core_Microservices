@@ -22,4 +22,3 @@ public class OrderHeader
 
     public IEnumerable<OrderDetails>? OrderDetails { get; set; }
 }
-
