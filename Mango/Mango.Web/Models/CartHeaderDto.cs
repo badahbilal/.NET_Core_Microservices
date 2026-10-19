@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Mango.Web.Models;
 
 public class CartHeaderDto
@@ -8,10 +10,14 @@ public class CartHeaderDto
     public double Discount { get; set; }
     public double CartTotal { get; set; }
 
-    // Added contact properties
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
+    [Required]
+    public string? Name { get; set; }
+
+    [Required]
+    [Phone]
     public string? Phone { get; set; }
+
+    [Required]
+    [EmailAddress]
     public string? Email { get; set; }
 }
-

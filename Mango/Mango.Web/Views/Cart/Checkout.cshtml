@@ -30,20 +30,11 @@
                             </div>
                             <div class="row my-1">
                                 <div class="col-3">
-                                    <label>First Name</label>
+                                    <label>Name</label>
                                 </div>
                                 <div class="col-9">
-                                    <input asp-for="CartHeader.FirstName" class="form-control" />
-                                    <span asp-validation-for="CartHeader.FirstName" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>Last Name</label>
-                                </div>
-                                <div class="col-9">
-                                    <input asp-for="CartHeader.LastName" class="form-control" />
-                                    <span asp-validation-for="CartHeader.LastName" class="text-danger"></span>
+                                    <input asp-for="CartHeader.Name" class="form-control" placeholder="Full Name..." />
+                                    <span asp-validation-for="CartHeader.Name" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -51,7 +42,7 @@
                                     <label>Email</label>
                                 </div>
                                 <div class="col-9">
-                                    <input asp-for="CartHeader.Email" class="form-control" />
+                                    <input asp-for="CartHeader.Email" class="form-control" placeholder="Email Address..." />
                                     <span asp-validation-for="CartHeader.Email" class="text-danger"></span>
                                 </div>
                             </div>
@@ -60,7 +51,7 @@
                                     <label>Phone</label>
                                 </div>
                                 <div class="col-9">
-                                    <input asp-for="CartHeader.Phone" class="form-control" />
+                                    <input asp-for="CartHeader.Phone" class="form-control" placeholder="Phone Number..." />
                                     <span asp-validation-for="CartHeader.Phone" class="text-danger"></span>
                                 </div>
                             </div>
@@ -72,14 +63,14 @@
                             <ul class="list-group mb-3">
                                 @if (Model.CartDetails != null)
                                 {
-                                    foreach (var detail in Model.CartDetails)
+                                    foreach (var cartObj in Model.CartDetails)
                                     {
                                         <li class="list-group-item d-flex justify-content-between">
                                             <div>
-                                                <h6 class="my-0">@detail.Product?.Name</h6>
-                                                <small class="text-muted">Quantity: @detail.Count</small>
+                                                <h6 class="my-0">@cartObj.Product?.Name</h6>
+                                                <small class="text-muted">Quantity: @cartObj.Count</small>
                                             </div>
-                                            <span class="text-muted">@(((detail.Product?.Price ?? 0) * detail.Count).ToString("c"))</span>
+                                            <span class="text-muted">@(((cartObj.Product?.Price ?? 0) * cartObj.Count).ToString("c"))</span>
                                         </li>
                                     }
                                 }
@@ -118,4 +109,3 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
