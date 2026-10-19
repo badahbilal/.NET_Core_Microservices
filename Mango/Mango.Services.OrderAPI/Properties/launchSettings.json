@@ -1,12 +1,15 @@
 {
+  "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "Mango.Services.OrderAPI": {
+    "https": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:58885;http://localhost:58886"
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7005;http://localhost:5005"
     }
   }
 }
