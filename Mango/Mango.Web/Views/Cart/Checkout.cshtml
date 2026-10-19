@@ -1,0 +1,121 @@
+@model CartDto
+
+<form method="post">
+    <input asp-for="CartHeader.UserId" hidden />
+    <input asp-for="CartHeader.CartHeaderId" hidden />
+    <input asp-for="CartHeader.CouponCode" hidden />
+    <input asp-for="CartHeader.Discount" hidden />
+    <input asp-for="CartHeader.CartTotal" hidden />
+
+    <div class="border mt-2 container">
+        <div class="card shadow border-0 mt-2">
+            <div class="card-header bg-dark text-light ml-0 py-4">
+                <div class="row px-4">
+                    <div class="col-6">
+                        <h5 class="pt-2 text-white">Order Summary</h5>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a asp-action="CartIndex" class="btn btn-outline-danger btn-sm">Back to Cart</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="container rounded p-2">
+                    <div class="row">
+                        <div class="col-12 col-lg-7 pb-4">
+                            <div class="row">
+                                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-info">Customer Details</span>
+                                </h4>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>First Name</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="CartHeader.FirstName" class="form-control" />
+                                    <span asp-validation-for="CartHeader.FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Last Name</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="CartHeader.LastName" class="form-control" />
+                                    <span asp-validation-for="CartHeader.LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Email</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="CartHeader.Email" class="form-control" />
+                                    <span asp-validation-for="CartHeader.Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Phone</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="CartHeader.Phone" class="form-control" />
+                                    <span asp-validation-for="CartHeader.Phone" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-5 pb-4">
+                            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-info">Items in Cart</span>
+                            </h4>
+                            <ul class="list-group mb-3">
+                                @if (Model.CartDetails != null)
+                                {
+                                    foreach (var detail in Model.CartDetails)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="my-0">@detail.Product?.Name</h6>
+                                                <small class="text-muted">Quantity: @detail.Count</small>
+                                            </div>
+                                            <span class="text-muted">@(((detail.Product?.Price ?? 0) * detail.Count).ToString("c"))</span>
+                                        </li>
+                                    }
+                                }
+
+                                @if (Model.CartHeader.Discount > 0)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between bg-light">
+                                        <div class="text-success">
+                                            <h6 class="my-0">Discount Amount</h6>
+                                            <small>Coupon: @Model.CartHeader.CouponCode</small>
+                                        </div>
+                                        <span class="text-success">-@Model.CartHeader.Discount.ToString("c")</span>
+                                    </li>
+                                }
+
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="text-info">Total (USD)</span>
+                                    <strong class="text-info">@Model.CartHeader.CartTotal.ToString("c")</strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-12 col-md-5 offset-md-7">
+                        <button type="submit" class="btn btn-success form-control">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

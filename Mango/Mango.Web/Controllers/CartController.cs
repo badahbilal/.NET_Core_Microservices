@@ -22,6 +22,12 @@ public class CartController : Controller
         return View(await LoadCartBasedOnLoggedInUser());
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Checkout()
+    {
+        return View(await LoadCartBasedOnLoggedInUser());
+    }
+
     public async Task<IActionResult> Remove(int cartDetailsId)
     {
         ResponseDto? response = await _cartService.RemoveFromCartAsync(cartDetailsId);
