@@ -11,10 +11,12 @@ namespace Mango.Web.Controllers;
 public class CartController : Controller
 {
     private readonly ICartService _cartService;
+    private readonly IOrderService _orderService;
 
-    public CartController(ICartService cartService)
+    public CartController(ICartService cartService, IOrderService orderService)
     {
         _cartService = cartService;
+        _orderService = orderService;
     }
 
     public async Task<IActionResult> CartIndex()
@@ -26,6 +28,37 @@ public class CartController : Controller
     public async Task<IActionResult> Checkout()
     {
         return View(await LoadCartBasedOnLoggedInUser());
+    }
+
+    [HttpPost]
+    [ActionName("Checkout")]
+    public async Task<IActionResult> Checkout(CartDto cartDto)
+    {
+        try
+        {
+            CartDto cart = await LoadCartBasedOnLoggedInUser();
+            cart.CartHeader.Phone = cartDto.CartHeader.Phone;
+            cart.CartHeader.Email = cartDto.CartHeader.Email;
+            cart.CartHeader.Name = cartDto.CartHeader.Name;
+
+            var response = await _orderService.CreateOrder(cart);
+            OrderHeaderDto? orderHeaderDto = null;
+
+            if (response != null && response.IsSuccess)
+            {
+                orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Result)!);
+                // TODO: Next step - integrate Stripe session creation and redirect
+                return RedirectToAction(nameof(CartIndex));
+            }
+
+            TempData["error"] = response?.Message ?? "Unable to create order";
+            return View(cart);
+        }
+        catch (Exception ex)
+        {
+            TempData["error"] = ex.Message;
+            return View(cartDto);
+        }
     }
 
     public async Task<IActionResult> Remove(int cartDetailsId)
