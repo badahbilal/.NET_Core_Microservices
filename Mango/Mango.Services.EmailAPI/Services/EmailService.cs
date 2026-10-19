@@ -35,6 +35,13 @@ public class EmailService : IEmailService
         await LogAndEmail(message.ToString(), cartDto.CartHeader.Email!);
     }
 
+    // Step 2 : Implement the RegisterUserEmailAndLog method to log the email registration request
+    public async Task RegisterUserEmailAndLog(string email)
+    {
+        string message = $"<br/>User Email Registration Requested for {email}";
+        await LogAndEmail(message, "bilal@badah.com");
+    }
+
     private async Task<bool> LogAndEmail(string message, string email)
     {
         try
