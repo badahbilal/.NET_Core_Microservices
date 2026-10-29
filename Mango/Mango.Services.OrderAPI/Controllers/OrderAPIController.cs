@@ -1,4 +1,5 @@
 using AutoMapper;
+using Mango.MessageBus;
 using Mango.Services.OrderAPI.Data;
 using Mango.Services.OrderAPI.Models;
 using Mango.Services.OrderAPI.Models.Dto;
@@ -19,13 +20,22 @@ namespace Mango.Services.OrderAPI.Controllers
         private readonly AppDbContext _db;
         private readonly IMapper _mapper;
         private readonly IProductService _productService;
+        private readonly IMessageBus _messageBus;
+        private readonly IConfiguration _configuration;
         protected ResponseDto _response;
 
-        public OrderAPIController(AppDbContext db, IMapper mapper, IProductService productService)
+        public OrderAPIController(
+            AppDbContext db,
+            IMapper mapper,
+            IProductService productService,
+            IMessageBus messageBus,
+            IConfiguration configuration)
         {
             _db = db;
             _mapper = mapper;
             _productService = productService;
+            _messageBus = messageBus;
+            _configuration = configuration;
             _response = new ResponseDto();
         }
 
@@ -132,7 +142,6 @@ namespace Mango.Services.OrderAPI.Controllers
         }
 
         [HttpPost("ValidateStripeSession")]
-        [Authorize]
         public async Task<ResponseDto> ValidateStripeSession([FromBody] int orderHeaderId)
         {
             try
@@ -140,17 +149,29 @@ namespace Mango.Services.OrderAPI.Controllers
                 OrderHeader orderHeader = _db.OrderHeaders.First(u => u.OrderHeaderId == orderHeaderId);
 
                 var service = new Stripe.Checkout.SessionService();
-                Stripe.Checkout.Session session = service.Get(orderHeader.StripeSessionId);
+                Stripe.Checkout.Session session = await service.GetAsync(orderHeader.StripeSessionId);
 
                 var paymentIntentService = new Stripe.PaymentIntentService();
-                Stripe.PaymentIntent paymentIntent = paymentIntentService.Get(session.PaymentIntentId);
+                Stripe.PaymentIntent paymentIntent = await paymentIntentService.GetAsync(session.PaymentIntentId);
 
                 if (paymentIntent.Status == "succeeded")
                 {
-                    // Payment was successful
+                    // 1. Update Order Lifecycle & Payment Reference
                     orderHeader.PaymentIntentId = paymentIntent.Id;
                     orderHeader.Status = SD.Status_Approved;
                     await _db.SaveChangesAsync();
+
+                    // 2. Prepare Topic Message Payload
+                    RewardsDto rewardsDto = new()
+                    {
+                        OrderId = orderHeader.OrderHeaderId,
+                        RewardsActivity = Convert.ToInt32(orderHeader.OrderTotal),
+                        UserId = orderHeader.UserId!
+                    };
+
+                    // 3. Publish Message to OrderCreated Topic
+                    string topicName = _configuration.GetValue<string>("TopicAndQueueNames:OrderCreatedTopic")!;
+                    await _messageBus.PublishMessage(rewardsDto, topicName);
 
                     _response.Result = _mapper.Map<OrderHeaderDto>(orderHeader);
                 }
