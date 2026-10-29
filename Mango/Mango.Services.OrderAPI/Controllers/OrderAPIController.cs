@@ -6,7 +6,6 @@ using Mango.Services.OrderAPI.Service.IService;
 using Mango.Services.OrderAPI.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Stripe;
 using Stripe.Checkout;
 
 namespace Mango.Services.OrderAPI.Controllers
@@ -61,30 +60,44 @@ namespace Mango.Services.OrderAPI.Controllers
             {
                 var options = new SessionCreateOptions
                 {
-                    SuccessUrl = "https://example.com/success",
-                    CancelUrl = "https://example.com/cancel",
-                    LineItems = new List<SessionLineItemOptions>
-                    {
-                        new SessionLineItemOptions
-                        {
-                            Price = "{{PRICE_ID}}",
-                            Quantity = 2,
-                        },
-                    },
-                    Mode = "payment",
+                    SuccessUrl = stripeRequestDto.ApprovedUrl,
+                    CancelUrl = stripeRequestDto.CancelUrl,
+                    LineItems = new List<SessionLineItemOptions>(),
+                    Mode = "payment"
                 };
 
-                // SessionService automatically reads StripeConfiguration.ApiKey set in Program.cs
-                var service = new SessionService();
-                Session session = await service.CreateAsync(options);
-
-                // Return session data (e.g. Url or Id) so the client can redirect to checkout
-                _response.Result = new
+                if (stripeRequestDto.OrderHeader?.OrderDetails != null)
                 {
-                    SessionId = session.Id,
-                    Url = session.Url
-                };
-                _response.IsSuccess = true;
+                    foreach (var item in stripeRequestDto.OrderHeader.OrderDetails)
+                    {
+                        var sessionLineItem = new SessionLineItemOptions
+                        {
+                            PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                UnitAmount = (long)(item.Price * 100), // e.g., $20.99 -> 2099 cents
+                                Currency = "usd",
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = item.Product?.Name ?? item.ProductName
+                                }
+                            },
+                            Quantity = item.Count
+                        };
+                        options.LineItems.Add(sessionLineItem);
+                    }
+                }
+
+                var service = new SessionService();
+                Session session = service.Create(options);
+
+                stripeRequestDto.StripeSessionUrl = session.Url;
+                stripeRequestDto.StripeSessionId = session.Id;
+
+                OrderHeader orderHeader = _db.OrderHeaders.First(u => u.OrderHeaderId == stripeRequestDto.OrderHeader!.OrderHeaderId);
+                orderHeader.StripeSessionId = session.Id;
+                await _db.SaveChangesAsync();
+
+                _response.Result = stripeRequestDto;
             }
             catch (Exception ex)
             {
