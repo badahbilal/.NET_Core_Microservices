@@ -30,6 +30,12 @@ public class CartController : Controller
         return View(await LoadCartBasedOnLoggedInUser());
     }
 
+    [HttpGet]
+    public IActionResult Confirmation(int orderId)
+    {
+        return View(orderId);
+    }
+
     [HttpPost]
     [ActionName("Checkout")]
     public async Task<IActionResult> Checkout(CartDto cartDto)
@@ -135,4 +141,3 @@ public class CartController : Controller
         return new CartDto();
     }
 }
-
