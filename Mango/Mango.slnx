@@ -9,8 +9,9 @@
   <Folder Name="/Services/">
     <Project Path="Mango.Services.CouponAPI/Mango.Services.CouponAPI.csproj" Id="7928d814-a163-4478-9db0-7b75dab73953" />
     <Project Path="Mango.Services.EmailAPI/Mango.Services.EmailAPI.csproj" />
-    <Project Path="Mango.Services.ProductAPI/Mango.Services.ProductAPI.csproj" Id="5c47f631-f925-4c6e-8260-7052a32c66c3" />
     <Project Path="Mango.Services.OrderAPI/Mango.Services.OrderAPI.csproj" />
+    <Project Path="Mango.Services.ProductAPI/Mango.Services.ProductAPI.csproj" Id="5c47f631-f925-4c6e-8260-7052a32c66c3" />
+    <Project Path="Mango.Services.RewardAPI/Mango.Services.RewardAPI.csproj" Id="55c75ddf-57da-4392-8708-b986c4c963a2" />
     <Project Path="Mango.Services.ShoppingCartAPI/Mango.Services.ShoppingCartAPI.csproj" Id="9f38ea12-3b47-4952-b883-9b2f3a61d15c" />
     <Project Path="Mongo.Services.AuthAPI/Mongo.Services.AuthAPI.csproj" Id="0e07cede-bbb3-448f-804f-6a45c6f339e7" />
   </Folder>
