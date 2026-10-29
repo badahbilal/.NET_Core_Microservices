@@ -9,8 +9,12 @@ using Mango.Services.OrderAPI.Utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load untracked local settings for secrets (e.g. Service Bus Connection String)
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 // Database configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -22,7 +26,7 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingConfig));
 // HTTP Handlers & Services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<BackendApiAuthenticationHttpClientHandler>();
-builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductService, Mango.Services.OrderAPI.Service.ProductService>();
 builder.Services.AddScoped<IMessageBus, MessageBus>();
 
 builder.Services.AddHttpClient("Product", u => u.BaseAddress =
@@ -53,6 +57,8 @@ builder.Services.AddSwaggerGen(option =>
 // Custom JWT Authentication Extension
 builder.AddAppAuthentication();
 builder.Services.AddAuthorization();
+
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 var app = builder.Build();
 
