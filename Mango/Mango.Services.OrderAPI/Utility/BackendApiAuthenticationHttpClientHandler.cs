@@ -14,7 +14,17 @@ public class BackendApiAuthenticationHttpClientHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var token = await _accessor.HttpContext.GetTokenAsync("access_token");
+        var token = await _accessor.HttpContext!.GetTokenAsync("access_token");
+
+        // Fallback: If SaveToken was not set, extract token from incoming Request Authorization header
+        if (string.IsNullOrEmpty(token))
+        {
+            var authHeader = _accessor.HttpContext?.Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                token = authHeader.Substring("Bearer ".Length).Trim();
+            }
+        }
 
         if (!string.IsNullOrEmpty(token))
         {
@@ -24,4 +34,3 @@ public class BackendApiAuthenticationHttpClientHandler : DelegatingHandler
         return await base.SendAsync(request, cancellationToken);
     }
 }
-

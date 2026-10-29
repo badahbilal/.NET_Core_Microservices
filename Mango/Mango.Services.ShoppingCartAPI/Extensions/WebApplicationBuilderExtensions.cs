@@ -21,6 +21,7 @@ public static class WebApplicationBuilderExtensions
             x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(x =>
         {
+            x.SaveToken = true;
             x.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -35,4 +36,3 @@ public static class WebApplicationBuilderExtensions
         return builder;
     }
 }
-

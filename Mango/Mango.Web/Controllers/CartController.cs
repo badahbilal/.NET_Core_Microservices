@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Mango.Web.Models;
 using Mango.Web.Service.IService;
+using Mango.Web.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -31,8 +32,19 @@ public class CartController : Controller
     }
 
     [HttpGet]
-    public IActionResult Confirmation(int orderId)
+    public async Task<IActionResult> Confirmation(int orderId)
     {
+        var response = await _orderService.ValidateStripeSession(orderId);
+        if (response != null && response.IsSuccess)
+        {
+            OrderHeaderDto? orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Result)!);
+            if (orderHeaderDto?.Status == SD.Status_Approved)
+            {
+                return View(orderId);
+            }
+        }
+
+        // Redirect to error or cart if payment was not approved
         return View(orderId);
     }
 

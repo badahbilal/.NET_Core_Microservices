@@ -76,6 +76,12 @@
                                 Order Discount : @Model.CartHeader.Discount.ToString("c")
                             </span>
                         }
+                        else if (!string.IsNullOrEmpty(Model.CartHeader.CouponCode))
+                        {
+                            <span class="text-muted" style="font-size:13px;">
+                                (Coupon minimum requirement not met)
+                            </span>
+                        }
                     </div>
                 </div>
             </div>

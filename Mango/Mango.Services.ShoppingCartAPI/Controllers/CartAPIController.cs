@@ -70,7 +70,7 @@ public class CartAPIController : ControllerBase
             if (!string.IsNullOrEmpty(cart.CartHeader.CouponCode))
             {
                 CouponDto coupon = await _couponService.GetCoupon(cart.CartHeader.CouponCode);
-                if (coupon != null && cart.CartHeader.CartTotal > coupon.MinAmount)
+                if (coupon != null && !string.IsNullOrEmpty(coupon.CouponCode) && cart.CartHeader.CartTotal >= coupon.MinAmount)
                 {
                     cart.CartHeader.CartTotal -= coupon.DiscountAmount;
                     cart.CartHeader.Discount = coupon.DiscountAmount;
@@ -216,4 +216,3 @@ public class CartAPIController : ControllerBase
         return _response;
     }
 }
-
