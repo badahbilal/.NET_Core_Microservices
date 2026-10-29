@@ -53,11 +53,23 @@ public class CartController : Controller
             if (response != null && response.IsSuccess)
             {
                 orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(Convert.ToString(response.Result)!);
-                // TODO: Next step - integrate Stripe session creation and redirect
-                return RedirectToAction(nameof(CartIndex));
+
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+                StripeRequestDto stripeRequestDto = new()
+                {
+                    ApprovedUrl = domain + "cart/Confirmation?orderId=" + orderHeaderDto.OrderHeaderId,
+                    CancelUrl = domain + "cart/checkout",
+                    OrderHeader = orderHeaderDto
+                };
+
+                var stripeResponse = await _orderService.CreateStripeSession(stripeRequestDto);
+                StripeRequestDto stripeResponseResult = JsonConvert.DeserializeObject<StripeRequestDto>
+                                                            (Convert.ToString(stripeResponse.Result)!);
+
+                Response.Headers.Append("Location", stripeResponseResult.StripeSessionUrl);
+                return new StatusCodeResult(303);
             }
 
-            TempData["error"] = response?.Message ?? "Unable to create order";
             return View(cart);
         }
         catch (Exception ex)
