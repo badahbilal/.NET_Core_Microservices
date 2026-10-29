@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Mango.Services.CouponAPI.Controllers
 {
-    [Route("api/coupon")]
+    [Route("api/couponapi")]
     [ApiController]
     [Authorize]
     public class CouponAPIController : ControllerBase
@@ -31,8 +31,7 @@ namespace Mango.Services.CouponAPI.Controllers
             try
             {
                 var coupons = await _db.Coupons.ToListAsync();
-                _response.Result =_mapper.Map<List<CouponDto>>(coupons);
-                
+                _response.Result = _mapper.Map<List<CouponDto>>(coupons);
             }
             catch (Exception ex)
             {
@@ -103,6 +102,16 @@ namespace Mango.Services.CouponAPI.Controllers
                 _db.Coupons.Add(coupon);
                 await _db.SaveChangesAsync();
 
+                var options = new Stripe.CouponCreateOptions
+                {
+                    AmountOff = (long)(coupon.DiscountAmount * 100),
+                    Name = coupon.CouponCode,
+                    Currency = "usd",
+                    Id = coupon.CouponCode
+                };
+                var service = new Stripe.CouponService();
+                service.Create(options);
+
                 _response.Result = _mapper.Map<CouponDto>(coupon);
             }
             catch (Exception ex)
@@ -142,6 +151,9 @@ namespace Mango.Services.CouponAPI.Controllers
             try
             {
                 Coupon? coupon = await _db.Coupons.FirstOrDefaultAsync(u => u.CouponId == id);
+
+                
+
                 if (coupon == null)
                 {
                     _response.IsSuccess = false;
@@ -152,15 +164,23 @@ namespace Mango.Services.CouponAPI.Controllers
                     _db.Coupons.Remove(coupon);
                     await _db.SaveChangesAsync();
                 }
+
+                try
+                {
+                    var service = new Stripe.CouponService();
+                    service.Delete(coupon.CouponCode);
+                }
+                catch { }
+                
+
+                _response.Result = true;
             }
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
                 _response.Message = ex.Message;
             }
-
             return _response;
         }
     }
 }
-
