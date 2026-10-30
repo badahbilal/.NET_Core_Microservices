@@ -1,28 +1,28 @@
-using Mango.MessageBus;
 using Mango.Services.AuthAPI.Models.Dto;
+using Mango.Services.AuthAPI.RabbitMQSender;
 using Mango.Services.AuthAPI.Service.IService;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Mongo.Services.AuthAPI.Controllers
+namespace Mango.Services.AuthAPI.Controllers
 {
     [Route("api/auth")]
     [ApiController]
     public class AuthAPIController : ControllerBase
     {
         private readonly IAuthService _authService;
-        // Step 2: Inject the MessageBus service into the controller
-        private readonly IMessageBus _messageBus;
+        private readonly IRabbitMQAuthMessageSender _messageSender;
         private readonly IConfiguration _configuration;
         protected ResponseDto _response;
 
-        public AuthAPIController(IAuthService authService, IMessageBus messageBus, IConfiguration configuration)
+        public AuthAPIController(
+            IAuthService authService,
+            IRabbitMQAuthMessageSender messageSender,
+            IConfiguration configuration)
         {
             _authService = authService;
-            // Step 3: Assign the injected MessageBus service to the private field
-            _messageBus = messageBus;
+            _messageSender = messageSender;
             _configuration = configuration;
-            _response = new();
+            _response = new ResponseDto();
         }
 
         [HttpPost("register")]
@@ -36,8 +36,9 @@ namespace Mongo.Services.AuthAPI.Controllers
                 return BadRequest(_response);
             }
 
-            // Step 4: Publish the message to the message bus after successful registration
-            await _messageBus.PublishMessage(model.Email, _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue"));
+            // Publish registration event to RabbitMQ
+            string queueName = _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue")!;
+            _messageSender.SendMessage(model.Email, queueName);
 
             return Ok(_response);
         }

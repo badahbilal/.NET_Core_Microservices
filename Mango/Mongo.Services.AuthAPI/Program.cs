@@ -1,4 +1,3 @@
-using Mango.MessageBus;
 using Mango.Services.AuthAPI.Data;
 using Mango.Services.AuthAPI.Models;
 using Mango.Services.AuthAPI.RabbitMQSender;
@@ -27,11 +26,8 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// Step 1: Register the MessageBus service
-builder.Services.AddScoped<IMessageBus, MessageBus>();
-
 // Register RabbitMQ Auth Message Sender
-builder.Services.AddSingleton<IRabbitMQAuthMessageSender, RabbitMQAuthMessageSender>();
+builder.Services.AddScoped<IRabbitMQAuthMessageSender, RabbitMQAuthMessageSender>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddSwaggerGen();
