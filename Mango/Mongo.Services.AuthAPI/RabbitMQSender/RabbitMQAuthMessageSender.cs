@@ -23,12 +23,24 @@ namespace Mango.Services.AuthAPI.RabbitMQSender
             if (ConnectionExists())
             {
                 using var channel = _connection!.CreateModel();
-                channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+
+                // Explicitly declare queue with non-exclusive access
+                channel.QueueDeclare(
+                    queue: queueName,
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
 
                 var json = JsonConvert.SerializeObject(message);
                 var body = Encoding.UTF8.GetBytes(json);
 
-                channel.BasicPublish(exchange: string.Empty, routingKey: queueName, basicProperties: null, body: body);
+                // Publish with null basicProperties
+                channel.BasicPublish(
+                    exchange: string.Empty,
+                    routingKey: queueName,
+                    basicProperties: null,
+                    body: body);
             }
         }
 
@@ -46,7 +58,7 @@ namespace Mango.Services.AuthAPI.RabbitMQSender
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Could not establish RabbitMQ connection: {ex.Message}");
+                Console.WriteLine($"Could not connect to RabbitMQ: {ex.Message}");
             }
         }
 
@@ -56,10 +68,8 @@ namespace Mango.Services.AuthAPI.RabbitMQSender
             {
                 return true;
             }
-
             CreateConnection();
             return _connection != null;
         }
     }
 }
-
