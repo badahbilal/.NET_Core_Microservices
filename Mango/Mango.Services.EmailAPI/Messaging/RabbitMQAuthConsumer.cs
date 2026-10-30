@@ -46,20 +46,20 @@ namespace Mango.Services.EmailAPI.Messaging
             stoppingToken.ThrowIfCancellationRequested();
 
             var consumer = new EventingBasicConsumer(_channel);
-            consumer.Received += async (ch, ea) =>
+            consumer.Received += (ch, ea) =>
             {
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
 
                 try
                 {
-                    await _emailService.RegisterUserEmailAndLog(message);
+                    // Execute and block until email logging task completes
+                    _emailService.RegisterUserEmailAndLog(message).GetAwaiter().GetResult();
                     _channel!.BasicAck(ea.DeliveryTag, false);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Optional: Add logging or dead-lettering
-                    throw;
+                    Console.WriteLine($"Error processing RabbitMQ auth message: {ex.Message}");
                 }
             };
 
@@ -79,4 +79,3 @@ namespace Mango.Services.EmailAPI.Messaging
         }
     }
 }
-
