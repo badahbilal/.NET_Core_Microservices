@@ -11,25 +11,63 @@ namespace Mango.Services.OrderAPI.RabbitMQSender
         private readonly string _password = "guest";
         private IConnection? _connection;
 
+            private const string OrderCreatedEmailUpdateQueue = "OrderCreated_Email_Update";
+        private const string OrderCreatedRewardsUpdateQueue = "OrderCreated_Rewards_Update";
+        private const string EmailRoutingKey = "emailUpdate";
+        private const string RewardsRoutingKey = "rewardsUpdate";
+
         public void SendMessage(object message, string exchangeName)
         {
             if (ConnectionExists())
             {
                 using var channel = _connection!.CreateModel();
 
-                // Declare fanout exchange instead of a queue
+                // 1. Declare Direct Exchange
                 channel.ExchangeDeclare(
                     exchange: exchangeName,
-                    type: ExchangeType.Fanout,
+                    type: ExchangeType.Direct,
                     durable: false);
 
+                // 2. Declare Queues
+                channel.QueueDeclare(
+                    queue: OrderCreatedEmailUpdateQueue,
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
+                channel.QueueDeclare(
+                    queue: OrderCreatedRewardsUpdateQueue,
+                    durable: false,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
+                // 3. Bind Queues to Exchange with specific routing keys
+                channel.QueueBind(
+                    queue: OrderCreatedEmailUpdateQueue,
+                    exchange: exchangeName,
+                    routingKey: EmailRoutingKey);
+
+                channel.QueueBind(
+                    queue: OrderCreatedRewardsUpdateQueue,
+                    exchange: exchangeName,
+                    routingKey: RewardsRoutingKey);
+
+                // 4. Serialize payload
                 var json = JsonConvert.SerializeObject(message);
                 var body = Encoding.UTF8.GetBytes(json);
 
-                // Publish directly to the exchange with an empty routing key
+                // 5. Publish to specific routing keys
                 channel.BasicPublish(
                     exchange: exchangeName,
-                    routingKey: string.Empty,
+                    routingKey: EmailRoutingKey,
+                    basicProperties: null,
+                    body: body);
+
+                channel.BasicPublish(
+                    exchange: exchangeName,
+                    routingKey: RewardsRoutingKey,
                     basicProperties: null,
                     body: body);
             }
@@ -65,4 +103,3 @@ namespace Mango.Services.OrderAPI.RabbitMQSender
         }
     }
 }
-
