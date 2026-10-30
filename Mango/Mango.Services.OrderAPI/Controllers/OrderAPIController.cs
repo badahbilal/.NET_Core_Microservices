@@ -1,8 +1,8 @@
 using AutoMapper;
-using Mango.MessageBus;
 using Mango.Services.OrderAPI.Data;
 using Mango.Services.OrderAPI.Models;
 using Mango.Services.OrderAPI.Models.Dto;
+using Mango.Services.OrderAPI.RabbitMQSender;
 using Mango.Services.OrderAPI.Service.IService;
 using Mango.Services.OrderAPI.Utility;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +20,7 @@ namespace Mango.Services.OrderAPI.Controllers
         private readonly AppDbContext _db;
         private readonly IMapper _mapper;
         private readonly IProductService _productService;
-        private readonly IMessageBus _messageBus;
+        private readonly IRabbitMQOrderMessageSender _messageSender;
         private readonly IConfiguration _configuration;
         protected ResponseDto _response;
 
@@ -28,13 +28,13 @@ namespace Mango.Services.OrderAPI.Controllers
             AppDbContext db,
             IMapper mapper,
             IProductService productService,
-            IMessageBus messageBus,
+            IRabbitMQOrderMessageSender messageSender,
             IConfiguration configuration)
         {
             _db = db;
             _mapper = mapper;
             _productService = productService;
-            _messageBus = messageBus;
+            _messageSender = messageSender;
             _configuration = configuration;
             _response = new ResponseDto();
         }
@@ -169,9 +169,9 @@ namespace Mango.Services.OrderAPI.Controllers
                         UserId = orderHeader.UserId!
                     };
 
-                    // 3. Publish Message to OrderCreated Topic
+                    // 3. Publish to RabbitMQ Fanout Exchange
                     string topicName = _configuration.GetValue<string>("TopicAndQueueNames:OrderCreatedTopic")!;
-                    await _messageBus.PublishMessage(rewardsDto, topicName);
+                    _messageSender.SendMessage(rewardsDto, topicName);
 
                     _response.Result = _mapper.Map<OrderHeaderDto>(orderHeader);
                 }

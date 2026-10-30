@@ -28,7 +28,6 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingConfig));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<BackendApiAuthenticationHttpClientHandler>();
 builder.Services.AddScoped<IProductService, Mango.Services.OrderAPI.Service.ProductService>();
-builder.Services.AddScoped<IMessageBus, MessageBus>();
 builder.Services.AddSingleton<IRabbitMQOrderMessageSender, RabbitMQOrderMessageSender>();
 
 builder.Services.AddHttpClient("Product", u => u.BaseAddress =
