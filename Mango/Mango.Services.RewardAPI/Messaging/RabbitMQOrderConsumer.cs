@@ -16,9 +16,11 @@ namespace Mango.Services.RewardAPI.Messaging
         private readonly string _username = "guest";
         private readonly string _password = "guest";
         private readonly string _exchangeName;
-        private readonly string _queueName;
         private IConnection? _connection;
         private IModel? _channel;
+
+        private const string OrderCreatedRewardsUpdateQueue = "OrderCreated_Rewards_Update";
+        private const string RewardsRoutingKey = "rewardsUpdate";
 
         public RabbitMQOrderConsumer(IConfiguration configuration, RewardService rewardService)
         {
@@ -36,12 +38,22 @@ namespace Mango.Services.RewardAPI.Messaging
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
 
-            // Declare fanout exchange
-            _channel.ExchangeDeclare(exchange: _exchangeName, type: ExchangeType.Fanout, durable: false);
+            // 1. Declare Direct Exchange
+            _channel.ExchangeDeclare(exchange: _exchangeName, type: ExchangeType.Direct, durable: false);
 
-            // Declare dynamic queue and bind to exchange
-            _queueName = _channel.QueueDeclare().QueueName;
-            _channel.QueueBind(queue: _queueName, exchange: _exchangeName, routingKey: string.Empty);
+            // 2. Declare Dedicated Queue
+            _channel.QueueDeclare(
+                queue: OrderCreatedRewardsUpdateQueue,
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+
+            // 3. Bind Queue to Direct Exchange using the Rewards routing key
+            _channel.QueueBind(
+                queue: OrderCreatedRewardsUpdateQueue,
+                exchange: _exchangeName,
+                routingKey: RewardsRoutingKey);
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -67,7 +79,7 @@ namespace Mango.Services.RewardAPI.Messaging
             };
 
             _channel!.BasicConsume(
-                queue: _queueName,
+                queue: OrderCreatedRewardsUpdateQueue,
                 autoAck: false,
                 consumer: consumer);
 
@@ -82,4 +94,3 @@ namespace Mango.Services.RewardAPI.Messaging
         }
     }
 }
-
