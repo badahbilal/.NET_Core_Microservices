@@ -3,6 +3,7 @@ using Mango.Services.EmailAPI.Data;
 using Mango.Services.EmailAPI.Extensions;
 using Mango.Services.EmailAPI.Messaging;
 using Mango.Services.EmailAPI.Services;
+using Mango.Services.EmailAPI.Services.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

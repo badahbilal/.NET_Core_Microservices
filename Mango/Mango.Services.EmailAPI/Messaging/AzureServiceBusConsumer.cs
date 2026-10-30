@@ -2,6 +2,7 @@ using System.Text;
 using Azure.Messaging.ServiceBus;
 using Mango.Services.EmailAPI.Models.Dto;
 using Mango.Services.EmailAPI.Services;
+using Mango.Services.EmailAPI.Services.IService;
 using Newtonsoft.Json;
 
 namespace Mango.Services.EmailAPI.Messaging;
