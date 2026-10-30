@@ -23,8 +23,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //117. Asynchronous Communication in Action
 var dbOptions = new DbContextOptionsBuilder<AppDbContext>();
 dbOptions.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-builder.Services.AddSingleton<IEmailService>(sp =>
-    new EmailService(dbOptions.Options));
+builder.Services.AddSingleton(new EmailService(dbOptions.Options));
+builder.Services.AddSingleton<IEmailService>(sp => sp.GetRequiredService<EmailService>());
+
+builder.Services.AddHostedService<RabbitMQAuthConsumer>();
 
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
