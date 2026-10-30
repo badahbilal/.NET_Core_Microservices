@@ -20,6 +20,9 @@ builder.Services.AddSingleton(new RewardService(optionBuilder.Options));
 // Azure Service Bus Consumer Registration
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
+// Register RabbitMQ Order Consumer
+builder.Services.AddHostedService<RabbitMQOrderConsumer>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

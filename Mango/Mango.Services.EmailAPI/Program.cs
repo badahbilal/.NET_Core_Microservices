@@ -28,6 +28,7 @@ builder.Services.AddSingleton<IEmailService>(sp => sp.GetRequiredService<EmailSe
 
 builder.Services.AddHostedService<RabbitMQAuthConsumer>();
 builder.Services.AddHostedService<RabbitMQCartConsumer>();
+builder.Services.AddHostedService<RabbitMQOrderConsumer>();
 
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
