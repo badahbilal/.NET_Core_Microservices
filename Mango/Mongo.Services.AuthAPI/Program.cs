@@ -27,7 +27,7 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Register RabbitMQ Auth Message Sender
-builder.Services.AddScoped<IRabbitMQAuthMessageSender, RabbitMQAuthMessageSender>();
+builder.Services.AddSingleton<IRabbitMQAuthMessageSender, RabbitMQAuthMessageSender>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddSwaggerGen();
