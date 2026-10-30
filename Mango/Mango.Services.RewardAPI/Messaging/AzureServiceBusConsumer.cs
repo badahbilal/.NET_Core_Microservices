@@ -21,7 +21,9 @@ namespace Mango.Services.RewardAPI.Messaging
             _configuration = configuration;
             _rewardService = rewardService;
 
-            _serviceBusConnectionString = _configuration.GetConnectionString("ServiceBusConnectionString")!;
+            _serviceBusConnectionString = _configuration.GetValue<string>("ServiceBusConnectionString")
+                ?? _configuration.GetConnectionString("ServiceBusConnectionString")
+                ?? _configuration.GetValue<string>("TopicAndQueueNames:ServiceBusConnectionString")!;
             _orderCreatedTopic = _configuration.GetValue<string>("TopicAndQueueNames:OrderCreatedTopic")!;
             _orderCreatedRewardSubscription = _configuration.GetValue<string>("TopicAndQueueNames:OrderCreated_Rewards_Update_Subscription")!;
 
